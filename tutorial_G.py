@@ -45,40 +45,67 @@ if __name__ == '__main__':
         t.start()
 
 
+
+
 '''
-To initialize the settings so all threads start with the same value, 
-we need to use a subclass and set the attributes in __init__()
+Example of threading.local()
+Thread Local Storage is a means where variables declared as thread local are made specific to thread instances.
+e.g. Use thread-local variables
 '''
 
 import threading
-import logging
-import random
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='(%(threadName)-10s) %(message)s',)
+thread_local = threading.local()
 
-def show(d):
+def f(n):
+    print( get_local_x())
+    set_local_x(n)
+    print( get_local_x())
+
+def get_local_x():
     try:
-        val = d.val
-    except AttributeError:
-        logging.debug('No value yet')
-    else:
-        logging.debug('value=%s', val)
+        return thread_local.x
+    except AttributeError as e:
+        return "Local x not yet set"
 
-def f(d):
-    show(d)
-    d.value = random.randint(1, 100)
-    show(d)
+def set_local_x(n):
+    thread_local.x = n
 
-class MyLocal(threading.local):
-    def __init__(self, v):
-        logging.debug('Initializing %r', self)
-        self.val = v
+thread1 = threading.Thread(target=f, args=(1,),name='thread1')
+thread2 = threading.Thread(target=f, args=(2,),name='thread2')
+thread1.start()
+thread2.start()
 
-if __name__ == '__main__':
-    d = MyLocal(999)
-    show(d)
+'''
+Anther example f threading local
+'''
 
-    for i in range(2):
-        t = threading.Thread(target=f, args=(d,))
-        t.start()
+# Thread Local Storage: Example Python Program
+
+ 
+
+import threading
+
+userName = threading.local() 
+
+def SessionThread(userName_in):
+
+    userName.val = userName_in
+
+    print(userName.val)      
+
+Session1 = threading.Thread(target=SessionThread,args=('User1',))
+
+Session2 = threading.Thread(target=SessionThread,args=('User2',))
+
+# start the session threads
+
+Session1.start()
+
+Session2.start() 
+
+# wait till the session threads are complete
+
+Session1.join()
+
+Session2.join()
